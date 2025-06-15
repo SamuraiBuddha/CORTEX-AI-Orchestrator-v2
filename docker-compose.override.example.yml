@@ -1,0 +1,34 @@
+# Docker Compose Override for Native Windows InfluxDB
+# This file shows how to configure services when using InfluxDB running natively on Windows
+# Place this file in the same directory as docker-compose.yml
+
+version: '3.8'
+
+services:
+  # Configure n8n to use native Windows InfluxDB
+  n8n:
+    environment:
+      # Add InfluxDB connection for n8n workflows
+      - INFLUXDB_HOST=host.docker.internal
+      - INFLUXDB_PORT=8086
+      - INFLUXDB_TOKEN=${INFLUX_TOKEN}
+      - INFLUXDB_ORG=cortex
+      - INFLUXDB_BUCKET=metrics
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+  # Configure Prometheus to scrape native Windows InfluxDB metrics
+  prometheus:
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+  # Grafana already has extra_hosts in main docker-compose.yml
+  # Additional datasource configuration in ./monitoring/grafana/provisioning/datasources/
+  
+  # Configure any other services that need to access native Windows services
+  flowise:
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+# Note: For production deployment to NAS-hosted services, create a similar override file
+# that points to NAS IP addresses instead of host.docker.internal
