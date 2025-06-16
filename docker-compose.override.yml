@@ -1,0 +1,82 @@
+# CORTEX docker-compose.override.yml for NAS Integration
+# This file overrides the main docker-compose.yml to use services running on Terramaster NAS
+
+services:
+  # These services are already running on the NAS - we just need to connect to them
+  postgres:
+    # Override to use external PostgreSQL on NAS
+    image: busybox
+    command: echo "Using PostgreSQL on terramaster.local:5432"
+    deploy:
+      replicas: 0  # Don't actually run this container
+
+  redis:
+    # Override to use external Redis on NAS
+    image: busybox
+    command: echo "Using Redis on terramaster.local:6379"
+    deploy:
+      replicas: 0
+
+  neo4j:
+    # Override to use external Neo4j on NAS
+    image: busybox
+    command: echo "Using Neo4j on terramaster.local:7474/7687"
+    deploy:
+      replicas: 0
+
+  qdrant:
+    # Override to use external Qdrant on NAS
+    image: busybox
+    command: echo "Using Qdrant on terramaster.local:6333"
+    deploy:
+      replicas: 0
+
+  prometheus:
+    # Override to use external Prometheus on NAS
+    image: busybox
+    command: echo "Using Prometheus on terramaster.local:9090"
+    deploy:
+      replicas: 0
+
+  grafana:
+    # Override to use external Grafana on NAS
+    image: busybox
+    command: echo "Using Grafana on terramaster.local:3000"
+    deploy:
+      replicas: 0
+
+  loki:
+    # Override to use external Loki on NAS
+    image: busybox
+    command: echo "Using Loki on terramaster.local:3100"
+    deploy:
+      replicas: 0
+
+  # n8n needs to connect to NAS services but might run locally or on specific Magi machine
+  n8n:
+    environment:
+      # Override database connections to point to NAS
+      DB_POSTGRESDB_HOST: terramaster.local
+      DB_POSTGRESDB_PORT: 5432
+      QUEUE_BULL_REDIS_HOST: terramaster.local
+      QUEUE_BULL_REDIS_PORT: 6379
+    extra_hosts:
+      - "terramaster.local:${NAS_IP:-192.168.1.100}"  # Replace with your NAS IP
+    depends_on: []  # Remove local dependencies
+
+  # Flowise can also use NAS databases
+  flowise:
+    environment:
+      DATABASE_HOST: terramaster.local
+      DATABASE_PORT: 5432
+      REDIS_HOST: terramaster.local
+      REDIS_PORT: 6379
+    extra_hosts:
+      - "terramaster.local:${NAS_IP:-192.168.1.100}"
+    depends_on: []
+
+# Networks - use the existing networks from self-hosted-ai-starter-kit
+networks:
+  cortex-network:
+    external: true
+    name: self-hosted-ai-starter-kit_demo  # The network your NAS containers use

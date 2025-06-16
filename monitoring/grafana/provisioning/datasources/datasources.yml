@@ -1,0 +1,50 @@
+# Grafana Datasource Configuration for Native Windows InfluxDB
+# Place this file in ./monitoring/grafana/provisioning/datasources/
+
+apiVersion: 1
+
+datasources:
+  - name: Prometheus
+    type: prometheus
+    access: proxy
+    url: http://prometheus:9090
+    isDefault: true
+    editable: false
+
+  # InfluxDB running natively on Windows
+  - name: InfluxDB-Native
+    type: influxdb
+    access: proxy
+    url: http://host.docker.internal:8086
+    jsonData:
+      version: Flux
+      organization: cortex
+      defaultBucket: metrics
+    secureJsonData:
+      token: ${INFLUX_TOKEN}
+    editable: false
+
+  # InfluxDB if using Docker (uncomment if switching to Docker)
+  # - name: InfluxDB-Docker
+  #   type: influxdb
+  #   access: proxy
+  #   url: http://influxdb:8086
+  #   jsonData:
+  #     version: Flux
+  #     organization: cortex
+  #     defaultBucket: metrics
+  #   secureJsonData:
+  #     token: ${INFLUX_TOKEN}
+  #   editable: false
+
+  - name: Loki
+    type: loki
+    access: proxy
+    url: http://loki:3100
+    editable: false
+
+  - name: Redis
+    type: redis-datasource
+    access: proxy
+    url: redis://redis:6379
+    editable: false

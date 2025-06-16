@@ -140,24 +140,29 @@ services:
     networks:
       - cortex_network
 
-  # InfluxDB - Time Series Metrics
-  influxdb:
-    image: influxdb:2
-    restart: unless-stopped
-    environment:
-      - DOCKER_INFLUXDB_INIT_MODE=setup
-      - DOCKER_INFLUXDB_INIT_USERNAME=admin
-      - DOCKER_INFLUXDB_INIT_PASSWORD=${INFLUX_PASSWORD:-ChangeThisPassword}
-      - DOCKER_INFLUXDB_INIT_ORG=cortex
-      - DOCKER_INFLUXDB_INIT_BUCKET=metrics
-      - DOCKER_INFLUXDB_INIT_ADMIN_TOKEN=${INFLUX_TOKEN:-ChangeThisToSecureToken}
-    ports:
-      - "8086:8086"
-    volumes:
-      - influxdb_data:/var/lib/influxdb2
-      - influxdb_config:/etc/influxdb2
-    networks:
-      - cortex_network
+  # InfluxDB - COMMENTED OUT: Running natively on Windows
+  # If you need to run InfluxDB in Docker instead of native Windows:
+  # 1. Stop the Windows InfluxDB service
+  # 2. Uncomment this section
+  # 3. Update Grafana datasource to use influxdb:8086 instead of host.docker.internal:8086
+  #
+  # influxdb:
+  #   image: influxdb:2
+  #   restart: unless-stopped
+  #   environment:
+  #     - DOCKER_INFLUXDB_INIT_MODE=setup
+  #     - DOCKER_INFLUXDB_INIT_USERNAME=admin
+  #     - DOCKER_INFLUXDB_INIT_PASSWORD=${INFLUX_PASSWORD:-ChangeThisPassword}
+  #     - DOCKER_INFLUXDB_INIT_ORG=cortex
+  #     - DOCKER_INFLUXDB_INIT_BUCKET=metrics
+  #     - DOCKER_INFLUXDB_INIT_ADMIN_TOKEN=${INFLUX_TOKEN:-ChangeThisToSecureToken}
+  #   ports:
+  #     - "8086:8086"
+  #   volumes:
+  #     - influxdb_data:/var/lib/influxdb2
+  #     - influxdb_config:/etc/influxdb2
+  #   networks:
+  #     - cortex_network
 
   # Prometheus - Metrics Collection
   prometheus:
@@ -193,9 +198,12 @@ services:
       - grafana_data:/var/lib/grafana
       - ./monitoring/grafana/provisioning:/etc/grafana/provisioning
       - ./monitoring/grafana/dashboards:/var/lib/grafana/dashboards
+    # Add extra_hosts to allow Grafana to connect to native Windows InfluxDB
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     depends_on:
       - prometheus
-      - influxdb
+      # Remove influxdb dependency since it's running natively
       - loki
     networks:
       - cortex_network
@@ -237,7 +245,7 @@ services:
       - '--path.rootfs=/host'
       - '--path.procfs=/host/proc'
       - '--path.sysfs=/host/sys'
-      - '--collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($$|/)'
+      - '--collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($|/)'
     volumes:
       - /proc:/host/proc:ro
       - /sys:/host/sys:ro
@@ -291,8 +299,9 @@ volumes:
   neo4j_plugins:
   redis_data:
   flowise_data:
-  influxdb_data:
-  influxdb_config:
+  # Keep influxdb volumes commented for potential future use
+  # influxdb_data:
+  # influxdb_config:
   prometheus_data:
   grafana_data:
   loki_data:
