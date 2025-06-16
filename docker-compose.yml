@@ -7,7 +7,7 @@ services:
     restart: unless-stopped
     environment:
       POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:Sup3rBIMgod!}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
       POSTGRES_MULTIPLE_DATABASES: cortex_db,n8n,flowise
     ports:
       - "5432:5432"
@@ -29,12 +29,12 @@ services:
     environment:
       - N8N_DIAGNOSTICS_ENABLED=false
       - N8N_PERSONALIZATION_ENABLED=false
-      - N8N_ENCRYPTION_KEY=${N8N_ENCRYPTION_KEY:Sup3rBIMgod!}
-      - N8N_USER_MANAGEMENT_JWT_SECRET=${N8N_JWT_SECRET:Thatsapp!esn0ranges}
+      - N8N_ENCRYPTION_KEY=${N8N_ENCRYPTION_KEY}
+      - N8N_USER_MANAGEMENT_JWT_SECRET=${N8N_JWT_SECRET}
       - DB_TYPE=postgresdb
       - DB_POSTGRESDB_HOST=postgres
       - DB_POSTGRESDB_USER=postgres
-      - DB_POSTGRESDB_PASSWORD=${POSTGRES_PASSWORD:-Sup3rBIMgod!}
+      - DB_POSTGRESDB_PASSWORD=${POSTGRES_PASSWORD}
       - DB_POSTGRESDB_DATABASE=n8n
       - EXECUTIONS_DATA_PRUNE=true
       - EXECUTIONS_DATA_MAX_AGE=336
@@ -81,7 +81,7 @@ services:
     image: neo4j:5-community
     restart: unless-stopped
     environment:
-      - NEO4J_AUTH=neo4j/${NEO4J_PASSWORD:Sup3rBIMgod!}
+      - NEO4J_AUTH=neo4j/${NEO4J_PASSWORD}
       - NEO4J_apoc_export_file_enabled=true
       - NEO4J_apoc_import_file_enabled=true
       - NEO4J_apoc_import_file_use__neo4j__config=true
@@ -122,10 +122,10 @@ services:
       - DATABASE_HOST=postgres
       - DATABASE_PORT=5432
       - DATABASE_USER=postgres
-      - DATABASE_PASSWORD=${POSTGRES_PASSWORD:-ChangeThisPassword}
+      - DATABASE_PASSWORD=${POSTGRES_PASSWORD}
       - DATABASE_NAME=flowise
-      - FLOWISE_USERNAME=${FLOWISE_USERNAME:-admin}
-      - FLOWISE_PASSWORD=${FLOWISE_PASSWORD:-admin}
+      - FLOWISE_USERNAME=${FLOWISE_USERNAME}
+      - FLOWISE_PASSWORD=${FLOWISE_PASSWORD}
       - APIKEY_PATH=/data/.flowise
       - SECRETKEY_PATH=/data/.flowise
       - LOG_PATH=/data/.flowise/logs
@@ -146,23 +146,23 @@ services:
   # 2. Uncomment this section
   # 3. Update Grafana datasource to use influxdb:8086 instead of host.docker.internal:8086
   #
-  # influxdb:
-  #   image: influxdb:2
-  #   restart: unless-stopped
-  #   environment:
-  #     - DOCKER_INFLUXDB_INIT_MODE=setup
-  #     - DOCKER_INFLUXDB_INIT_USERNAME=admin
-  #     - DOCKER_INFLUXDB_INIT_PASSWORD=${INFLUX_PASSWORD:-ChangeThisPassword}
-  #     - DOCKER_INFLUXDB_INIT_ORG=cortex
-  #     - DOCKER_INFLUXDB_INIT_BUCKET=metrics
-  #     - DOCKER_INFLUXDB_INIT_ADMIN_TOKEN=${INFLUX_TOKEN:-ChangeThisToSecureToken}
-  #   ports:
-  #     - "8086:8086"
-  #   volumes:
-  #     - influxdb_data:/var/lib/influxdb2
-  #     - influxdb_config:/etc/influxdb2
-  #   networks:
-  #     - cortex_network
+  influxdb:
+    image: influxdb:2
+    restart: unless-stopped
+    environment:
+       - DOCKER_INFLUXDB_INIT_MODE=setup
+       - DOCKER_INFLUXDB_INIT_USERNAME=admin
+       - DOCKER_INFLUXDB_INIT_PASSWORD=${INFLUX_PASSWORD}
+       - DOCKER_INFLUXDB_INIT_ORG=cortex
+       - DOCKER_INFLUXDB_INIT_BUCKET=metrics
+       - DOCKER_INFLUXDB_INIT_ADMIN_TOKEN=${INFLUX_TOKEN}
+    ports:
+       - "8086:8086"
+    volumes:
+       - influxdb_data:/var/lib/influxdb2
+       - influxdb_config:/etc/influxdb2
+    networks:
+       - cortex_network
 
   # Prometheus - Metrics Collection
   prometheus:
@@ -189,7 +189,7 @@ services:
     restart: unless-stopped
     environment:
       - GF_SECURITY_ADMIN_USER=admin
-      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_PASSWORD:-ChangeThisPassword}
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_PASSWORD}
       - GF_USERS_ALLOW_SIGN_UP=false
       - GF_INSTALL_PLUGINS=redis-datasource
     ports:
@@ -201,9 +201,10 @@ services:
     # Add extra_hosts to allow Grafana to connect to native Windows InfluxDB
     extra_hosts:
       - "host.docker.internal:host-gateway"
+      - "influxdb:8086"
     depends_on:
       - prometheus
-      # Remove influxdb dependency since it's running natively
+      - influxdb2
       - loki
     networks:
       - cortex_network
@@ -278,7 +279,7 @@ services:
     ports:
       - "8081:8080"
     environment:
-      - WEBUI_SECRET_KEY=${WEBUI_SECRET_KEY:-ChangeThisToSecureSecret}
+      - WEBUI_SECRET_KEY=${WEBUI_SECRET_KEY}
       - WEBUI_AUTH=true
       - WEBUI_NAME=CORTEX AI Interface
       - OLLAMA_API_BASE_URL=http://host.docker.internal:11434/api
@@ -300,8 +301,8 @@ volumes:
   redis_data:
   flowise_data:
   # Keep influxdb volumes commented for potential future use
-  # influxdb_data:
-  # influxdb_config:
+  influxdb_data:
+  influxdb_config:
   prometheus_data:
   grafana_data:
   loki_data:
