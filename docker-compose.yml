@@ -7,7 +7,7 @@ services:
     restart: unless-stopped
     environment:
       POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-ChangeThisPassword}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:Sup3rBIMgod!}
       POSTGRES_MULTIPLE_DATABASES: cortex_db,n8n,flowise
     ports:
       - "5432:5432"
@@ -29,12 +29,12 @@ services:
     environment:
       - N8N_DIAGNOSTICS_ENABLED=false
       - N8N_PERSONALIZATION_ENABLED=false
-      - N8N_ENCRYPTION_KEY=${N8N_ENCRYPTION_KEY:-ChangeThisToSecureKey}
-      - N8N_USER_MANAGEMENT_JWT_SECRET=${N8N_JWT_SECRET:-ChangeThisToSecureSecret}
+      - N8N_ENCRYPTION_KEY=${N8N_ENCRYPTION_KEY:Sup3rBIMgod!}
+      - N8N_USER_MANAGEMENT_JWT_SECRET=${N8N_JWT_SECRET:Thatsapp!esn0ranges}
       - DB_TYPE=postgresdb
       - DB_POSTGRESDB_HOST=postgres
       - DB_POSTGRESDB_USER=postgres
-      - DB_POSTGRESDB_PASSWORD=${POSTGRES_PASSWORD:-ChangeThisPassword}
+      - DB_POSTGRESDB_PASSWORD=${POSTGRES_PASSWORD:-Sup3rBIMgod!}
       - DB_POSTGRESDB_DATABASE=n8n
       - EXECUTIONS_DATA_PRUNE=true
       - EXECUTIONS_DATA_MAX_AGE=336
@@ -81,7 +81,7 @@ services:
     image: neo4j:5-community
     restart: unless-stopped
     environment:
-      - NEO4J_AUTH=neo4j/${NEO4J_PASSWORD:-ChangeThisPassword}
+      - NEO4J_AUTH=neo4j/${NEO4J_PASSWORD:Sup3rBIMgod!}
       - NEO4J_apoc_export_file_enabled=true
       - NEO4J_apoc_import_file_enabled=true
       - NEO4J_apoc_import_file_use__neo4j__config=true
